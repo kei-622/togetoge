@@ -11,42 +11,51 @@
     <div class="container">
         <header>
             <h1> 大人数旅行計画サポーター「旅プラ」</h1>
-            <p>みんなの希望を集めて、最適なプランを多数決で決めよう！</p>
         </header>
 
-        <section class="card" id="step1-choice">
-            <h2> グループIDを持っていますか？</h2>
-            <div class="button-group">
-                <button class="btn" id="btn-have-id"> 持っている</button>
-                <button class="btn btn-outline" id="btn-create-id"> 新規作成する</button>
-            </div>
-        </section>
+        <div id="page-step1" class="step-page active">
+            <section class="card text-center">
+                <h2> グループIDを持っていますか？</h2>
+                <p class="sub-text">すでに友達が部屋を作っている場合は「持っている」を選んでください。</p>
+                <div class="button-groupvertical">
+                    <button class="btn" id="btn-have-id"> 持っている（グループに入る）</button>
+                    <button class="btn btn-outline" id="btn-create-id"> 持っていない（新しく作る）</button>
+                </div>
+            </section>
+        </div>
 
-        <section class="card hidden" id="step2a-input">
-            <h2> グループIDを入力</h2>
-            <div class="form-group">
-                <input type="text" id="inputGroupId" placeholder="例: room-1234">
-            </div>
-            <div class="button-group">
-                <button class="btn" id="btn-join">入室する</button>
-                <button class="btn btn-sub" id="btn-back-from-input">戻る</button>
-            </div>
-        </section>
+        <div id="page-step2a" class="step-page">
+            <section class="card">
+                <h2> グループIDを入力</h2>
+                <p class="sub-text">友達から共有された「room-XXXX」というIDを入力してください。</p>
+                <div class="form-group">
+                    <input type="text" id="inputGroupId" placeholder="例: room-1234">
+                </div>
+                <div class="button-group">
+                    <button class="btn" id="btn-join">入室する</button>
+                    <button class="btn btn-sub" id="btn-back-from-input">戻る</button>
+                </div>
+            </section>
+        </div>
 
-        <section class="card hidden" id="step2b-share">
-            <h2> グループを作成しました！</h2>
-            <p>このIDまたはリンクをメンバーに共有してください。</p>
-            <div class="share-box">
-                <span id="generatedIdDisplay">room-XXXX</span>
-                <button class="btn btn-sm" id="btn-copy"> コピー</button>
-            </div>
-            <div class="button-group">
-                <a href="#" target="_blank" class="btn btn-line" id="btn-line-share"> LINEで共有する</a>
-                <button class="btn" id="btn-enter-created">次へ進む </button>
-            </div>
-        </section>
+        <div id="page-step2b" class="step-page">
+            <section class="card text-center">
+                <h2> グループ部屋を作成しました！</h2>
+                <p class="sub-text">メンバーにIDを共有して、みんなが集まったら次へ進みましょう。</p>
+                
+                <div class="share-box">
+                    <span id="generatedIdDisplay">room-XXXX</span>
+                    <button class="btn btn-sm" id="btn-copy"> IDをコピー</button>
+                </div>
 
-        <div id="mainContent" class="hidden">
+                <div class="button-groupvertical">
+                    <a href="#" target="_blank" class="btn btn-line" id="btn-line-share"> LINEで友達に送る</a>
+                    <button class="btn" id="btn-enter-created">グループページを開く </button>
+                </div>
+            </section>
+        </div>
+
+        <div id="page-main" class="step-page">
             <div class="group-info-banner">
                 現在のグループID: <strong id="displayGroupId">------</strong>
             </div>
