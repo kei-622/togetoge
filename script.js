@@ -1,10 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ---  1. 安全ガード付きのFirebase初期化エリア ---
+// ---  1. Firebase初期化 ＆ デモモード自動判定 ---
 let db = null;
+let isDemoMode = false; 
 
-//  あなたのFirebase設定をここに貼り付けてください
+//  Firebaseを本当に繋ぐ場合は、ここをご自身のキーに書き換えてください。
+// このままでも「デモモード」として画面遷移やグラフのシミュレーションはすべて動きます！
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_AUTH_DOMAIN",
@@ -15,19 +17,21 @@ const firebaseConfig = {
 };
 
 try {
-    // もし設定が初期値のままでなければFirebaseを起動する
-    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+    if (firebaseConfig.apiKey !== "YOUR_API_KEY" && firebaseConfig.apiKey !== "") {
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
+        console.log(" Firebase接続完了。リアルタイム同期が有効です。");
     } else {
-        console.warn("Firebaseの設定情報がまだ書き換えられていません。初期画面の切り替えのみ動作します。");
+        isDemoMode = true;
+        console.warn(" Firebase未設定のため【デモモード】で起動します。");
     }
 } catch (error) {
-    console.error("Firebaseの初期化でエラーが発生しました:", error);
+    isDemoMode = true;
+    console.error("Firebase初期化エラー。デモモードで起動します:", error);
 }
 
 
-// ---  2. 画面切り替えシステム（ここからは何があっても絶対に動きます） ---
+// ---  2. 画面切り替えシステム ＆ イベント登録 ---
 let currentGroupId = "";
 let budgetChartIdx = null;
 let activityChartIdx = null;
@@ -43,7 +47,7 @@ function changePage(pageId) {
     }
 }
 
-// ページが読み込まれたらボタンの機能を絶対に登録する
+// ページが読み込まれたらボタンのイベントを確実に登録
 window.addEventListener('DOMContentLoaded', () => {
     
     //  YES を押したとき
@@ -51,13 +55,9 @@ window.addEventListener('DOMContentLoaded', () => {
         changePage('page-step2a');
     });
 
-    //  NO を押したとき
+    //  NO を押したとき（★邪魔なエラーガードを削除し、一発で進むように修正！）
     document.getElementById('btn-create-id').addEventListener('click', () => {
-        if (!db) {
-            alert(" Firebaseの設定（firebaseConfig）が正しく書き換えられていないため、IDの自動生成ができません。script.jsの7〜14行目を確認してください！");
-            return;
-        }
-        createNewGroup();
+        createNewGroup(); 
     });
 
     // 入力画面から「戻る」を押したとき
@@ -65,22 +65,23 @@ window.addEventListener('DOMContentLoaded', () => {
         changePage('page-step1');
     });
 
-    // 入室ボタン・次へ進むボタン
+    // 入室ボタン・作成完了画面から次へ進むボタン
     document.getElementById('btn-join').addEventListener('click', joinGroup);
     document.getElementById('btn-enter-created').addEventListener('click', () => {
         changePage('page-main');
     });
 
-    // その他のボタン
+    // コピペ・投票ボタン
     document.getElementById('btn-copy').addEventListener('click', copyIdToClipboard);
     document.getElementById('btn-vote-A').addEventListener('click', () => castVote('A'));
     document.getElementById('btn-vote-B').addEventListener('click', () => castVote('B'));
 
-    // URLに直接ルームIDが入っていた場合の自動ログイン
+    // URLに直接ルームID（?room=1234）が入っていた場合の自動ログイン
     const urlParams = new URLSearchParams(window.location.search);
     const roomIdFromUrl = urlParams.get('room');
-    if (roomIdFromUrl && db) {
-        enterRoom(roomIdFromUrl);
+    if (roomIdFromUrl) {
+        currentGroupId = roomIdFromUrl;
+        if (db) enterRoom(roomIdFromUrl);
         changePage('page-main');
     }
 });
@@ -100,32 +101,50 @@ function copyIdToClipboard() {
 }
 
 
-// ---  4. データベース（Firebase）通信処理 ---
+// ---  4. データ処理（Firebase ＆ デモモード自動切替） ---
 
 async function createNewGroup() {
-    try {
-        const randomId = Math.floor(1000 + Math.random() * 9000).toString();
-        currentGroupId = randomId;
+    // 4桁のランダムな数字IDを生成（例: 1234）
+    const randomId = Math.floor(1000 + Math.random() * 9000).toString();
+    currentGroupId = randomId;
 
-        const groupRef = doc(db, "travel_groups", randomId);
-        await setDoc(groupRef, { members: [], votes: { A: 0, B: 0 } });
+    document.getElementById('generatedIdDisplay').innerText = randomId;
+    updateLineShareLink(randomId);
 
-        document.getElementById('generatedIdDisplay').innerText = randomId;
-        updateLineShareLink(randomId);
-        enterRoom(randomId);
-        
-        changePage('page-step2b');
-    } catch (error) {
-        alert(" グループ作成に失敗しました。\n理由: " + error.message);
+    // Firebaseが設定されている場合は、裏側でデータベースに部屋を作る
+    if (db && !isDemoMode) {
+        try {
+            const groupRef = doc(db, "travel_groups", randomId);
+            await setDoc(groupRef, { members: [], votes: { A: 0, B: 0 } });
+            enterRoom(randomId);
+        } catch (error) {
+            console.error("Firebase保存エラー。デモモードに切り替えます:", error);
+            isDemoMode = true;
+        }
     }
+
+    //  Firebaseが繋がっていなくても、絶対にNOの次の画面（page-step2b）へ遷移させる！
+    changePage('page-step2b'); 
 }
 
 async function joinGroup() {
-    if (!db) return alert("Firebaseが設定されていません");
-    try {
-        const idInput = document.getElementById('inputGroupId').value.trim();
-        if (!idInput) return alert("グループIDを入力してください");
+    const idInput = document.getElementById('inputGroupId').value.trim();
+    if (!idInput) return alert("グループIDを入力してください");
 
+    currentGroupId = idInput;
+
+    // デモモードなら、どんなIDを入力してもそのままメイン画面に通す
+    if (isDemoMode || !db) {
+        document.getElementById('displayGroupId').innerText = idInput;
+        // 画面が寂しくならないように初期のダミーデータをセット
+        updateCharts([{name: "たろう", budget: 20000, activity: "温泉・リラックス"}]);
+        updateProposals([{name: "たろう", budget: 20000, activity: "温泉・リラックス"}]);
+        changePage('page-main');
+        return;
+    }
+
+    // 本番モードならFirebaseに部屋を呼びに行く
+    try {
         const groupRef = doc(db, "travel_groups", idInput);
         const docSnap = await getDoc(groupRef);
 
@@ -141,7 +160,7 @@ async function joinGroup() {
 }
 
 function enterRoom(groupId) {
-    currentGroupId = groupId;
+    if (!db) return;
     document.getElementById('displayGroupId').innerText = groupId;
 
     onSnapshot(doc(db, "travel_groups", groupId), (doc) => {
@@ -157,12 +176,20 @@ function enterRoom(groupId) {
 // フォーム送信処理
 document.getElementById('surveyForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    if (!db) return;
-    try {
-        const name = document.getElementById('userName').value;
-        const budget = parseInt(document.getElementById('userBudget').value);
-        const activity = document.getElementById('userActivity').value;
+    const name = document.getElementById('userName').value;
+    const budget = parseInt(document.getElementById('userBudget').value);
+    const activity = document.getElementById('userActivity').value;
 
+    // デモモードならその場でフロントのグラフだけ更新
+    if (isDemoMode || !db) {
+        alert("【デモ画面】希望を送信しました！");
+        updateCharts([{name, budget, activity}]);
+        updateProposals([{name, budget, activity}]);
+        document.getElementById('userName').value = '';
+        return;
+    }
+
+    try {
         await updateDoc(doc(db, "travel_groups", currentGroupId), {
             members: arrayUnion({ name, budget, activity })
         });
@@ -174,7 +201,11 @@ document.getElementById('surveyForm').addEventListener('submit', async function(
 });
 
 async function castVote(plan) {
-    if (!db) return;
+    if (isDemoMode || !db) {
+        alert(`【デモ画面】${plan}に投票しました！`);
+        updateVoteChart({A: plan==='A'?1:0, B: plan==='B'?1:0});
+        return;
+    }
     try {
         const groupRef = doc(db, "travel_groups", currentGroupId);
         const docSnap = await getDoc(groupRef);
