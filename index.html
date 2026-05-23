@@ -14,23 +14,39 @@
             <p>みんなの希望を集めて、最適なプランを多数決で決めよう！</p>
         </header>
 
-        <section class="card" id="authSection">
-            <h2> グループを選択</h2>
-            <div class="auth-box">
-                <div class="auth-action">
-                    <h3>新しくグループを作る</h3>
-                    <button class="btn" onclick="createNewGroup()">グループIDを自動発行する</button>
-                </div>
-                <div class="auth-divider">または</div>
-                <div class="auth-action">
-                    <h3>既存のグループに入る</h3>
-                    <input type="text" id="inputGroupId" placeholder="例: travel-1234">
-                    <button class="btn btn-outline" onclick="joinGroup()">入室する</button>
-                </div>
+        <section class="card" id="step1-choice">
+            <h2> グループIDを持っていますか？</h2>
+            <div class="button-group">
+                <button class="btn" id="btn-have-id"> 持っている</button>
+                <button class="btn btn-outline" id="btn-create-id"> 新規作成する</button>
             </div>
         </section>
 
-        <div id="mainContent" style="display: none;">
+        <section class="card hidden" id="step2a-input">
+            <h2> グループIDを入力</h2>
+            <div class="form-group">
+                <input type="text" id="inputGroupId" placeholder="例: room-1234">
+            </div>
+            <div class="button-group">
+                <button class="btn" id="btn-join">入室する</button>
+                <button class="btn btn-sub" id="btn-back-from-input">戻る</button>
+            </div>
+        </section>
+
+        <section class="card hidden" id="step2b-share">
+            <h2> グループを作成しました！</h2>
+            <p>このIDまたはリンクをメンバーに共有してください。</p>
+            <div class="share-box">
+                <span id="generatedIdDisplay">room-XXXX</span>
+                <button class="btn btn-sm" id="btn-copy"> コピー</button>
+            </div>
+            <div class="button-group">
+                <a href="#" target="_blank" class="btn btn-line" id="btn-line-share"> LINEで共有する</a>
+                <button class="btn" id="btn-enter-created">次へ進む </button>
+            </div>
+        </section>
+
+        <div id="mainContent" class="hidden">
             <div class="group-info-banner">
                 現在のグループID: <strong id="displayGroupId">------</strong>
             </div>
@@ -59,7 +75,7 @@
                 </form>
             </section>
 
-            <section class="card" id="resultSection">
+            <section class="card">
                 <h2>2. みんなの希望の集計結果</h2>
                 <div class="charts-container">
                     <div class="chart-box">
@@ -73,7 +89,7 @@
                 </div>
             </section>
 
-            <section class="card" id="proposalSection">
+            <section class="card">
                 <h2>3. 集計結果に基づく提案プラン</h2>
                 <p class="info-text"> 多数派の意見と平均予算から選ばれたプランです。</p>
                 <div class="plans-container">
@@ -88,11 +104,11 @@
                 </div>
             </section>
 
-            <section class="card" id="voteSection">
+            <section class="card">
                 <h2>4. どちらのプランが良いですか？（多数決）</h2>
                 <div class="vote-buttons">
-                    <button class="btn btn-outline" onclick="castVote('A')"> プランAに投票</button>
-                    <button class="btn btn-outline" onclick="castVote('B')"> プランBに投票</button>
+                    <button class="btn btn-outline" id="btn-vote-A"> プランAに投票</button>
+                    <button class="btn btn-outline" id="btn-vote-B"> プランBに投票</button>
                 </div>
                 <div class="chart-box vote-chart">
                     <canvas id="voteChart"></canvas>
