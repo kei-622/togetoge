@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-//  【重要】Firebaseの設定情報をここに貼り付けてください
+//  Firebaseの設定情報をここに貼り付けてください
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_AUTH_DOMAIN",
@@ -19,50 +19,51 @@ let budgetChartIdx = null;
 let activityChartIdx = null;
 let voteChartIdx = null;
 
-// --- 画面切り替えの制御（イベントリスナー登録） ---
+//  【新機能】すべての画面を隠して、指定したステップだけを確実に表示する関数
+function changePage(pageId) {
+    document.querySelectorAll('.step-page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+}
+
+// --- ボタンをクリックしたときの動きを登録 ---
 
 document.getElementById('btn-have-id').addEventListener('click', () => {
-    switchScreen('step1-choice', 'step2a-input');
+    changePage('page-step2a'); // ID入力画面へ
 });
 
-document.getElementById('btn-create-id').addEventListener('click', createNewGroup);
+document.getElementById('btn-create-id').addEventListener('click', createNewGroup); // ID自動生成へ
 
 document.getElementById('btn-back-from-input').addEventListener('click', () => {
-    switchScreen('step2a-input', 'step1-choice');
+    changePage('page-step1'); // 最初の画面に戻る
 });
 
 document.getElementById('btn-join').addEventListener('click', joinGroup);
 
 document.getElementById('btn-enter-created').addEventListener('click', () => {
-    switchScreen('step2b-share', 'mainContent');
+    changePage('page-main'); // メイン画面へ進む
 });
 
 document.getElementById('btn-copy').addEventListener('click', copyIdToClipboard);
 document.getElementById('btn-vote-A').addEventListener('click', () => castVote('A'));
 document.getElementById('btn-vote-B').addEventListener('click', () => castVote('B'));
 
-function switchScreen(hideId, showId) {
-    document.getElementById(hideId).classList.add('hidden');
-    document.getElementById(showId).classList.remove('hidden');
-}
 
-// --- LINE共有リンクの作成 ---
+// --- LINE共有リンクとコピペ機能 ---
 function updateLineShareLink(groupId) {
-    // 現在のページのURL（GitHub PagesのURLなど）を取得
     const currentUrl = window.location.href.split('?')[0];
     const inviteUrl = `${currentUrl}?room=${groupId}`;
-    
-    const lineText = encodeURIComponent(`旅行計画アプリ「旅プラ」の部屋が作成されました！\n以下のリンクから参加してね！\n${inviteUrl}`);
+    const lineText = encodeURIComponent(`グループ旅行計画「旅プラ」の部屋ができたよ！\nこのリンクから回答してね！\n${inviteUrl}`);
     document.getElementById('btn-line-share').href = `https://social-plugins.line.me/lineit/share?url=${lineText}`;
 }
 
-// コピペ機能
 function copyIdToClipboard() {
     navigator.clipboard.writeText(currentGroupId);
-    alert(`グループID [ ${currentGroupId} ] をコピーしました！`);
+    alert(`グループID [ ${currentGroupId} ] をコピーしました！友達に送ってあげてください。`);
 }
 
-// --- Firebase 連携処理 ---
+// --- Firebase接続処理 ---
 
 async function createNewGroup() {
     const randomId = "room-" + Math.floor(1000 + Math.random() * 9000);
@@ -75,7 +76,7 @@ async function createNewGroup() {
     updateLineShareLink(randomId);
     enterRoom(randomId);
     
-    switchScreen('step1-choice', 'step2b-share');
+    changePage('page-step2b'); // 共有画面へ切り替え
 }
 
 async function joinGroup() {
@@ -87,9 +88,9 @@ async function joinGroup() {
 
     if (docSnap.exists()) {
         enterRoom(idInput);
-        switchScreen('step2a-input', 'mainContent');
+        changePage('page-main'); // メイン画面へ切り替え
     } else {
-        alert("そのIDのグループは見つかりません。");
+        alert("そのIDのグループは見つかりません。番号が合っているか確認してください。");
     }
 }
 
@@ -107,19 +108,17 @@ function enterRoom(groupId) {
     });
 }
 
-// ページを開いた瞬間にLINE招待リンク（?room=xxx）から来たかチェックする機能
+// LINEのURLを踏んで直接入ってきた人の自動処理
 window.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomIdFromUrl = urlParams.get('room');
     if (roomIdFromUrl) {
         enterRoom(roomIdFromUrl);
-        document.getElementById('step1-choice').classList.add('hidden');
-        document.getElementById('mainContent').classList.remove('hidden');
+        changePage('page-main');
     }
 });
 
-// --- データ送信・グラフ描画（前回と同様） ---
-
+// --- データ集計フォーム送信 ---
 document.getElementById('surveyForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const name = document.getElementById('userName').value;
@@ -130,7 +129,7 @@ document.getElementById('surveyForm').addEventListener('submit', async function(
         members: arrayUnion({ name, budget, activity })
     });
     document.getElementById('userName').value = '';
-    alert("希望を送信しました！結果がリアルタイムに反映されます。");
+    alert("希望を送信しました！みんなの画面がリアルタイムに更新されます。");
 });
 
 async function castVote(plan) {
@@ -141,6 +140,7 @@ async function castVote(plan) {
     await updateDoc(groupRef, { votes: currentVotes });
 }
 
+// --- グラフとテキストの描画 (Chart.js) ---
 function updateCharts(members) {
     if (!members || members.length === 0) return;
     const names = members.map(d => d.name);
