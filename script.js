@@ -1,7 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-//  Firebaseの設定情報をここに貼り付けてください
+// ---  1. 安全ガード付きのFirebase初期化エリア ---
+let db = null;
+
+//  あなたのFirebase設定をここに貼り付けてください
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_AUTH_DOMAIN",
@@ -11,45 +14,79 @@ const firebaseConfig = {
     appId: "YOUR_APP_ID"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+try {
+    // もし設定が初期値のままでなければFirebaseを起動する
+    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+    } else {
+        console.warn("Firebaseの設定情報がまだ書き換えられていません。初期画面の切り替えのみ動作します。");
+    }
+} catch (error) {
+    console.error("Firebaseの初期化でエラーが発生しました:", error);
+}
 
+
+// ---  2. 画面切り替えシステム（ここからは何があっても絶対に動きます） ---
 let currentGroupId = "";
 let budgetChartIdx = null;
 let activityChartIdx = null;
 let voteChartIdx = null;
 
-// すべての画面を隠して、指定したステップだけを表示する関数
 function changePage(pageId) {
     document.querySelectorAll('.step-page').forEach(page => {
         page.classList.remove('active');
     });
-    document.getElementById(pageId).classList.add('active');
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+    }
 }
 
-// --- ボタンのクリックイベント紐付け ---
+// ページが読み込まれたらボタンの機能を絶対に登録する
+window.addEventListener('DOMContentLoaded', () => {
+    
+    //  YES を押したとき
+    document.getElementById('btn-have-id').addEventListener('click', () => {
+        changePage('page-step2a');
+    });
 
-document.getElementById('btn-have-id').addEventListener('click', () => {
-    changePage('page-step2a'); // YESの画面へ
+    //  NO を押したとき
+    document.getElementById('btn-create-id').addEventListener('click', () => {
+        if (!db) {
+            alert(" Firebaseの設定（firebaseConfig）が正しく書き換えられていないため、IDの自動生成ができません。script.jsの7〜14行目を確認してください！");
+            return;
+        }
+        createNewGroup();
+    });
+
+    // 入力画面から「戻る」を押したとき
+    document.getElementById('btn-back-from-input').addEventListener('click', () => {
+        changePage('page-step1');
+    });
+
+    // 入室ボタン・次へ進むボタン
+    document.getElementById('btn-join').addEventListener('click', joinGroup);
+    document.getElementById('btn-enter-created').addEventListener('click', () => {
+        changePage('page-main');
+    });
+
+    // その他のボタン
+    document.getElementById('btn-copy').addEventListener('click', copyIdToClipboard);
+    document.getElementById('btn-vote-A').addEventListener('click', () => castVote('A'));
+    document.getElementById('btn-vote-B').addEventListener('click', () => castVote('B'));
+
+    // URLに直接ルームIDが入っていた場合の自動ログイン
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomIdFromUrl = urlParams.get('room');
+    if (roomIdFromUrl && db) {
+        enterRoom(roomIdFromUrl);
+        changePage('page-main');
+    }
 });
 
-document.getElementById('btn-create-id').addEventListener('click', createNewGroup); // NO（自動作成）の画面へ
 
-document.getElementById('btn-back-from-input').addEventListener('click', () => {
-    changePage('page-step1'); // 最初の画面に戻る
-});
-
-document.getElementById('btn-join').addEventListener('click', joinGroup);
-
-document.getElementById('btn-enter-created').addEventListener('click', () => {
-    changePage('page-main'); // メインの投票画面へ
-});
-
-document.getElementById('btn-copy').addEventListener('click', copyIdToClipboard);
-document.getElementById('btn-vote-A').addEventListener('click', () => castVote('A'));
-document.getElementById('btn-vote-B').addEventListener('click', () => castVote('B'));
-
-// --- LINE共有リンクとコピペ機能 ---
+// ---  3. LINE共有・コピー機能 ---
 function updateLineShareLink(groupId) {
     const currentUrl = window.location.href.split('?')[0];
     const inviteUrl = `${currentUrl}?room=${groupId}`;
@@ -62,11 +99,11 @@ function copyIdToClipboard() {
     alert(`こちらのID [ ${currentGroupId} ] をコピーしました！友達に送ってあげてください。`);
 }
 
-// --- Firebase接続処理 ---
+
+// ---  4. データベース（Firebase）通信処理 ---
 
 async function createNewGroup() {
     try {
-        //  ご希望に合わせて、純粋な「4桁の数字（1000〜9999）」のIDに変更しました
         const randomId = Math.floor(1000 + Math.random() * 9000).toString();
         currentGroupId = randomId;
 
@@ -77,14 +114,14 @@ async function createNewGroup() {
         updateLineShareLink(randomId);
         enterRoom(randomId);
         
-        changePage('page-step2b'); // NOの場合の画面へ切り替え
+        changePage('page-step2b');
     } catch (error) {
-        console.error("新規作成エラー:", error);
-        alert(" グループの作成に失敗しました。\n理由: " + error.message + "\n\n※Firebaseの「ルール」がテストモード（true）になっているか確認してください。");
+        alert(" グループ作成に失敗しました。\n理由: " + error.message);
     }
 }
 
 async function joinGroup() {
+    if (!db) return alert("Firebaseが設定されていません");
     try {
         const idInput = document.getElementById('inputGroupId').value.trim();
         if (!idInput) return alert("グループIDを入力してください");
@@ -94,7 +131,7 @@ async function joinGroup() {
 
         if (docSnap.exists()) {
             enterRoom(idInput);
-            changePage('page-main'); // メインの投票画面へ
+            changePage('page-main');
         } else {
             alert("そのIDのグループは見つかりません。番号が合っているか確認してください。");
         }
@@ -117,19 +154,10 @@ function enterRoom(groupId) {
     });
 }
 
-// LINEのリンク（?room=1234）から直接アクセスした際の自動ログイン処理
-window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomIdFromUrl = urlParams.get('room');
-    if (roomIdFromUrl) {
-        enterRoom(roomIdFromUrl);
-        changePage('page-main');
-    }
-});
-
-// --- 希望送信処理 ---
+// フォーム送信処理
 document.getElementById('surveyForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    if (!db) return;
     try {
         const name = document.getElementById('userName').value;
         const budget = parseInt(document.getElementById('userBudget').value);
@@ -146,6 +174,7 @@ document.getElementById('surveyForm').addEventListener('submit', async function(
 });
 
 async function castVote(plan) {
+    if (!db) return;
     try {
         const groupRef = doc(db, "travel_groups", currentGroupId);
         const docSnap = await getDoc(groupRef);
@@ -157,7 +186,8 @@ async function castVote(plan) {
     }
 }
 
-// --- グラフとテキストの描画 (Chart.js) ---
+
+// ---  5. グラフとテキストの描画 (Chart.js) ---
 function updateCharts(members) {
     if (!members || members.length === 0) return;
     const names = members.map(d => d.name);
