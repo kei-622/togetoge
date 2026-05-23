@@ -9,27 +9,22 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1> 大人数旅行計画サポーター「旅プラ」</h1>
-        </header>
-
         <div id="page-step1" class="step-page active">
-            <section class="card text-center">
-                <h2> グループIDを持っていますか？</h2>
-                <p class="sub-text">すでに友達が部屋を作っている場合は「持っている」を選んでください。</p>
-                <div class="button-groupvertical">
-                    <button class="btn" id="btn-have-id"> 持っている（グループに入る）</button>
-                    <button class="btn btn-outline" id="btn-create-id"> 持っていない（新しく作る）</button>
+            <section class="card text-center welcome-card">
+                <h1> ようこそ旅プラへ！</h1>
+                <h2>IDをお持ちですか？</h2>
+                <div class="button-group-yesno">
+                    <button class="btn btn-yes" id="btn-have-id"> YES</button>
+                    <button class="btn btn-no" id="btn-create-id"> NO</button>
                 </div>
             </section>
         </div>
 
         <div id="page-step2a" class="step-page">
             <section class="card">
-                <h2> グループIDを入力</h2>
-                <p class="sub-text">友達から共有された「room-XXXX」というIDを入力してください。</p>
+                <h2> 友人が作成したIDを入力してください</h2>
                 <div class="form-group">
-                    <input type="text" id="inputGroupId" placeholder="例: room-1234">
+                    <input type="text" id="inputGroupId" placeholder="例: 1234" inputmode="numeric" pattern="[0-9]*">
                 </div>
                 <div class="button-group">
                     <button class="btn" id="btn-join">入室する</button>
@@ -40,16 +35,16 @@
 
         <div id="page-step2b" class="step-page">
             <section class="card text-center">
-                <h2> グループ部屋を作成しました！</h2>
-                <p class="sub-text">メンバーにIDを共有して、みんなが集まったら次へ進みましょう。</p>
+                <h2> IDを自動作成しました！</h2>
                 
+                <div class="id-label">こちらのIDを使用してください</div>
                 <div class="share-box">
-                    <span id="generatedIdDisplay">room-XXXX</span>
-                    <button class="btn btn-sm" id="btn-copy"> IDをコピー</button>
+                    <span id="generatedIdDisplay">0000</span>
+                    <button class="btn btn-sm" id="btn-copy"> コピーする</button>
                 </div>
 
                 <div class="button-groupvertical">
-                    <a href="#" target="_blank" class="btn btn-line" id="btn-line-share"> LINEで友達に送る</a>
+                    <a href="#" target="_blank" class="btn btn-line" id="btn-line-share"> LINEで共有する</a>
                     <button class="btn" id="btn-enter-created">グループページを開く </button>
                 </div>
             </section>
