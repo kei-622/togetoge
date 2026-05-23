@@ -13,59 +13,68 @@ header {
     text-align: center;
     margin-bottom: 30px;
 }
-header h1 { color: #2c3e50; }
+header h1 { color: #2c3e50; font-size: 24px; }
+
+/*  紙紙芝居システムのための絶対ルール */
+.step-page {
+    display: none; 
+}
+.step-page.active {
+    display: block !important; 
+}
+
 .card {
     background: #fff;
     border-radius: 12px;
-    padding: 25px;
+    padding: 30px;
     margin-bottom: 25px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
+.text-center { text-align: center; }
+.sub-text { color: #7f8c8d; font-size: 14px; margin-bottom: 25px; }
+
 .card h2 {
     margin-top: 0;
     color: #34495e;
-    border-bottom: 2px solid #ecf0f1;
     padding-bottom: 10px;
 }
-/*  画面切り替え用の重要スタイル */
-.hidden {
-    display: none !important;
-}
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: bold; }
 .form-group input, .form-group select {
-    width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px;
+    width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px;
 }
-/* ボタン全般 */
-.button-group {
-    display: flex; gap: 15px; margin-top: 20px;
-}
+
+/* ボタンデザイン */
+.button-group { display: flex; gap: 15px; margin-top: 20px; }
+.button-groupvertical { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
 .btn {
-    flex: 1; background-color: #3498db; color: white; border: none; padding: 12px 20px;
-    border-radius: 6px; cursor: pointer; font-size: 16px; text-align: center; text-decoration: none;
+    display: block; width: 100%; background-color: #3498db; color: white; border: none; padding: 14px 20px;
+    border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box;
 }
 .btn:hover { background-color: #2980b9; }
 .btn-outline { background-color: transparent; border: 2px solid #3498db; color: #3498db; }
 .btn-outline:hover { background-color: #3498db; color: white; }
 .btn-sub { background-color: #95a5a6; }
 .btn-sub:hover { background-color: #7f8c8d; }
-.btn-line { background-color: #06C755; color: white; font-weight: bold; }
+.btn-line { background-color: #06C755; color: white; }
 .btn-line:hover { background-color: #05b34c; }
-.btn-sm { padding: 5px 10px; font-size: 14px; flex: none; width: auto; }
-/* 共有ボックス */
+.btn-sm { padding: 8px 15px; font-size: 14px; width: auto; }
+
+/* 共有ID表示エリア */
 .share-box {
     display: flex; align-items: center; justify-content: space-between;
-    background: #f8f9fa; border: 2px dashed #3498db; padding: 15px; border-radius: 8px; margin: 15px 0;
+    background: #f8f9fa; border: 2px dashed #3498db; padding: 15px 20px; border-radius: 8px; margin: 20px 0;
 }
-#generatedIdDisplay { font-size: 24px; font-weight: bold; color: #2c3e50; letter-spacing: 2px; }
+#generatedIdDisplay { font-size: 28px; font-weight: bold; color: #2c3e50; letter-spacing: 2px; }
+
 .group-info-banner {
-    background-color: #2c3e50; color: white; padding: 12px; border-radius: 8px; text-align: center; font-size: 18px; margin-bottom: 20px;
+    background-color: #2c3e50; color: white; padding: 14px; border-radius: 8px; text-align: center; font-size: 18px; margin-bottom: 25px;
 }
 .charts-container, .plans-container, .vote-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media (max-width: 600px) {
     .charts-container, .plans-container, .vote-buttons, .button-group { grid-template-columns: 1fr; flex-direction: column; }
 }
 .chart-box { background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-.plan-card { background: #fdfefe; border-left: 5px solid #2ecc71; padding: 15px; border-radius: 4px; }
+.plan-card { background: #fdfefe; border-left: 5px solid #2ecc71; padding: 15px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
 .info-text { color: #7f8c8d; font-style: italic; }
 .vote-chart { margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; }
