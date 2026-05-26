@@ -1,120 +1,201 @@
-body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f4f6f9;
-    color: #333;
+/* 全体のリセットとベース設定 */
+* {
+    box-sizing: border-box;
     margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+    color: #334155;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     padding: 20px;
 }
+
 .container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-header {
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 480px;
     text-align: center;
-    margin-bottom: 20px;
-}
-header h1 { color: #2c3e50; font-size: 22px; }
-
-/*  紙芝居システムのための絶対ルール */
-.step-page {
-    display: none; 
-}
-.step-page.active {
-    display: block !important; 
 }
 
-/* 最初のウェルカム画面用の装飾 */
-.welcome-card {
-    padding: 50px 30px !important;
-    margin-top: 40px;
-}
-.welcome-card h1 {
-    font-size: 28px;
-    margin-bottom: 10px;
-    color: #2c3e50;
-}
-.welcome-card h2 {
-    font-size: 22px;
-    border: none !important;
-    color: #34495e;
-    margin-bottom: 30px;
+/* ビューの表示制御 */
+.view {
+    transition: all 0.3s ease;
 }
 
-.card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+.hidden {
+    display: none !important;
 }
-.text-center { text-align: center; }
 
-.card h2 {
-    margin-top: 0;
-    color: #34495e;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #ecf0f1;
+h2 {
+    font-size: 1.6rem;
+    color: #0284c7;
+    margin-bottom: 12px;
 }
-.id-label {
-    font-size: 16px;
+
+.description {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 24px;
+}
+
+p {
+    margin-bottom: 16px;
+    font-size: 1rem;
+}
+
+/* 入力フォーム */
+input[type="text"] {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    text-align: center;
     font-weight: bold;
-    color: #7f8c8d;
-    margin-top: 10px;
+    letter-spacing: 2px;
 }
 
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 8px; font-weight: bold; }
-.form-group input, .form-group select {
-    width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 18px; text-align: center;
-}
-/* 投票画面内のフォームは左寄せにする */
-#page-main .form-group input, #page-main .form-group select {
-    text-align: left;
+input[type="text"]:focus {
+    border-color: #0284c7;
 }
 
-/* ボタンデザイン */
-.button-group { display: flex; gap: 15px; margin-top: 20px; }
-.button-groupvertical { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-
-/* YES/NO専用ボタン横並び */
-.button-group-yesno {
-    display: flex;
-    gap: 20px;
-    max-width: 400px;
-    margin: 0 auto;
-}
-
+/* ボタン各種 */
 .btn {
-    display: block; width: 100%; background-color: #3498db; color: white; border: none; padding: 14px 20px;
-    border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box;
+    display: block;
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-bottom: 12px;
 }
-.btn:hover { opacity: 0.9; }
-.btn-yes { background-color: #2ecc71; font-size: 18px; } /* 緑色 */
-.btn-no { background-color: #e74c3c; font-size: 18px; }  /* 赤色 */
 
-.btn-outline { background-color: transparent; border: 2px solid #3498db; color: #3498db; }
-.btn-sub { background-color: #95a5a6; }
-.btn-line { background-color: #06C755; color: white; }
-.btn-sm { padding: 8px 15px; font-size: 14px; width: auto; }
-
-/* 共有ID表示エリア */
-.share-box {
-    display: flex; align-items: center; justify-content: space-between;
-    background: #f8f9fa; border: 2px dashed #3498db; padding: 15px 20px; border-radius: 8px; margin: 15px 0;
+.btn:active {
+    transform: scale(0.98);
 }
-#generatedIdDisplay { font-size: 32px; font-weight: bold; color: #2c3e50; letter-spacing: 4px; }
 
-.group-info-banner {
-    background-color: #2c3e50; color: white; padding: 14px; border-radius: 8px; text-align: center; font-size: 18px; margin-bottom: 25px;
+.btn-yes {
+    background-color: #0284c7;
+    color: white;
 }
-.charts-container, .plans-container, .vote-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-@media (max-width: 600px) {
-    .charts-container, .plans-container, .vote-buttons, .button-group, .button-group-yesno { 
-        grid-template-columns: 1fr; flex-direction: column; 
-    }
+.btn-no {
+    background-color: #0ea5e9;
+    color: white;
 }
-.chart-box { background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-.plan-card { background: #fdfefe; border-left: 5px solid #2ecc71; padding: 15px; border-radius: 4px; }
-.info-text { color: #7f8c8d; font-style: italic; }
-.vote-chart { margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; }
+
+.btn-primary {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-next {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.btn-back {
+    background-color: #94a3b8;
+    color: white;
+    margin-top: 20px;
+}
+
+.btn-vote {
+    background-color: #38bdf8;
+    color: white;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+.btn-vote:hover {
+    background-color: #0284c7;
+}
+
+.btn-group {
+    display: flex;
+    gap: 12px;
+}
+
+/* メッセージ表示 */
+.error-msg {
+    color: #ef4444;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    font-weight: bold;
+}
+
+.success-msg {
+    color: #10b981;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+/* 投票画面のスタイル */
+.room-badge {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 1.1rem;
+}
+
+.voting-options {
+    text-align: left;
+    margin-top: 24px;
+}
+
+.option-card {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.option-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.option-info h3 {
+    font-size: 1rem;
+    color: #1e293b;
+}
+
+.vote-count {
+    font-weight: bold;
+    color: #0284c7;
+}
+
+/* グラフ（プログレスバー） */
+.progress-bar-container {
+    background: #e2e8f0;
+    border-radius: 9999px;
+    height: 12px;
+    width: 100%;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #38bdf8, #0284c7);
+    height: 100%;
+    width: 0%;
+    transition: width 0.4s ease;
+}
