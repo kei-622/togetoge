@@ -97,6 +97,8 @@
         .btn-primary { background-color: #10b981; color: white; }
         .btn-next { background-color: #f59e0b; color: white; }
         .btn-back { background-color: #94a3b8; color: white; margin-top: 20px; }
+        .btn-danger { background-color: #ef4444; color: white; margin-top: 8px; } /* 削除ボタン用 */
+        .btn-danger:hover { background-color: #dc2626; }
         .btn-vote { background-color: #38bdf8; color: white; padding: 8px 16px; font-size: 0.9rem; }
         .btn-vote:hover { background-color: #0284c7; }
         .btn-group { display: flex; gap: 12px; }
@@ -182,7 +184,9 @@
                     <button class="btn btn-vote" data-option="沖縄"> 投票する</button>
                 </div>
             </div>
+            
             <button id="btn-leave" class="btn btn-back">ルームを退出する</button>
+            <button id="btn-delete" class="btn btn-danger">ルームを削除する</button>
         </div>
     </div>
 
@@ -202,6 +206,7 @@
             const btnSubmitJoin = document.getElementById('btn-submit-join');
             const btnBackFromJoin = document.getElementById('btn-back-from-join');
             const btnLeave = document.getElementById('btn-leave');
+            const btnDelete = document.getElementById('btn-delete'); // 削除ボタンの取得
 
             const inputCreateId = document.getElementById('input-create-id');
             const inputJoinId = document.getElementById('input-join-id');
@@ -325,14 +330,46 @@
                 });
             }
 
+            // ルームを退出する処理
             btnLeave.addEventListener('click', () => {
                 currentRoomId = null;
                 switchView(viewWelcome);
             });
 
+            // 追加：ルームを削除する処理
+            btnDelete.addEventListener('click', () => {
+                // 誤操作防止の確認アラート
+                const isConfirmed = confirm(`本当にルーム「${currentRoomId}」を削除しますか？\n投票データはすべて消去され、このIDは再度使えるようになります。`);
+                
+                if (isConfirmed) {
+                    const rooms = getRoomsData();
+                    
+                    // 該当するルームのデータをオブジェクトから完全に消去
+                    if (rooms[currentRoomId]) {
+                        delete rooms[currentRoomId];
+                        saveRoomsData(rooms); // 更新されたデータを保存
+                    }
+                    
+                    // 初期状態に戻してウェルカム画面へ
+                    currentRoomId = null;
+                    switchView(viewWelcome);
+                    alert('ルームを削除しました。');
+                }
+            });
+
             // リアルタイム同期用イベント
             window.addEventListener('storage', (e) => {
-                if (e.key === 'travel_rooms') renderVotingResults();
+                if (e.key === 'travel_rooms') {
+                    // もし現在入っているルームが他方で削除されたら初期画面に戻す
+                    const rooms = getRoomsData();
+                    if (currentRoomId && !rooms[currentRoomId]) {
+                        currentRoomId = null;
+                        switchView(viewWelcome);
+                        alert('このルームは削除されました。');
+                    } else {
+                        renderVotingResults();
+                    }
+                }
             });
         });
     </script>
