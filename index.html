@@ -4,9 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>グル旅 - プラン投票ルーム</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ーーー CSS (デザイン) ーーー */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+            color: #334155;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .view {
+            transition: all 0.3s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            color: #0284c7;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        input[type="text"]:focus {
+            border-color: #0284c7;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-bottom: 12px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-yes { background-color: #0284c7; color: white; }
+        .btn-no { background-color: #0ea5e9; color: white; }
+        .btn-primary { background-color: #10b981; color: white; }
+        .btn-next { background-color: #f59e0b; color: white; }
+        .btn-back { background-color: #94a3b8; color: white; margin-top: 20px; }
+        .btn-vote { background-color: #38bdf8; color: white; padding: 8px 16px; font-size: 0.9rem; }
+        .btn-vote:hover { background-color: #0284c7; }
+        .btn-group { display: flex; gap: 12px; }
+
+        .error-msg { color: #ef4444; font-size: 0.9rem; margin-bottom: 12px; font-weight: bold; }
+        .success-msg { color: #10b981; font-weight: bold; margin-bottom: 16px; }
+        .room-badge { background-color: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 1.1rem; }
+
+        .voting-options { text-align: left; margin-top: 24px; }
+        .option-card { background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
+        .option-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .option-info h3 { font-size: 1rem; color: #1e293b; }
+        .vote-count { font-weight: bold; color: #0284c7; }
+
+        .progress-bar-container { background: #e2e8f0; border-radius: 9999px; height: 12px; width: 100%; margin-bottom: 12px; overflow: hidden; }
+        .progress-bar { background: linear-gradient(90deg, #38bdf8, #0284c7); height: 100%; width: 0%; transition: width 0.4s ease; }
+    </style>
 </head>
 <body>
+
     <div class="container">
         <div id="view-welcome" class="view">
             <h2>グループ旅行投票アプリ</h2>
@@ -47,41 +157,184 @@
             <div class="voting-options">
                 <div class="option-card">
                     <div class="option-info">
-                        <h3>北海道 (グルメ＆自然満喫プラン)</h3>
+                        <h3>北海道 (グルメ＆自然満喫)</h3>
                         <span id="count-hokkaido" class="vote-count">0 票</span>
                     </div>
-                    <div class="progress-bar-container">
-                        <div id="bar-hokkaido" class="progress-bar"></div>
-                    </div>
+                    <div class="progress-bar-container"><div id="bar-hokkaido" class="progress-bar"></div></div>
                     <button class="btn btn-vote" data-option="北海道"> 投票する</button>
                 </div>
                 
                 <div class="option-card">
                     <div class="option-info">
-                        <h3>京都 (歴史巡り＆和菓子食べ歩きプラン)</h3>
+                        <h3>京都 (歴史巡り＆和菓子)</h3>
                         <span id="count-kyoto" class="vote-count">0 票</span>
                     </div>
-                    <div class="progress-bar-container">
-                        <div id="bar-kyoto" class="progress-bar"></div>
-                    </div>
+                    <div class="progress-bar-container"><div id="bar-kyoto" class="progress-bar"></div></div>
                     <button class="btn btn-vote" data-option="京都"> 投票する</button>
                 </div>
 
                 <div class="option-card">
                     <div class="option-info">
-                        <h3>沖縄 (リゾート＆マリンスポーツプラン)</h3>
+                        <h3>沖縄 (リゾート＆ビーチ)</h3>
                         <span id="count-okinawa" class="vote-count">0 票</span>
                     </div>
-                    <div class="progress-bar-container">
-                        <div id="bar-okinawa" class="progress-bar"></div>
-                    </div>
+                    <div class="progress-bar-container"><div id="bar-okinawa" class="progress-bar"></div></div>
                     <button class="btn btn-vote" data-option="沖縄"> 投票する</button>
                 </div>
             </div>
-
             <button id="btn-leave" class="btn btn-back">ルームを退出する</button>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // ーーー JavaScript (ロジック) ーーー
+        document.addEventListener('DOMContentLoaded', () => {
+            // 要素の取得
+            const viewWelcome = document.getElementById('view-welcome');
+            const viewCreate = document.getElementById('view-create');
+            const viewJoin = document.getElementById('view-join');
+            const viewVoting = document.getElementById('view-voting');
+
+            const btnHasRoom = document.getElementById('btn-has-room');
+            const btnNoRoom = document.getElementById('btn-no-room');
+            const btnSubmitCreate = document.getElementById('btn-submit-create');
+            const btnGoVoteFromCreate = document.getElementById('btn-go-vote-from-create');
+            const btnSubmitJoin = document.getElementById('btn-submit-join');
+            const btnBackFromJoin = document.getElementById('btn-back-from-join');
+            const btnLeave = document.getElementById('btn-leave');
+
+            const inputCreateId = document.getElementById('input-create-id');
+            const inputJoinId = document.getElementById('input-join-id');
+            const createError = document.getElementById('create-error');
+            const joinError = document.getElementById('join-error');
+            const createSuccess = document.getElementById('create-success');
+            const displayRoomId = document.getElementById('display-room-id');
+
+            let currentRoomId = null;
+
+            // 画面切り替え
+            function switchView(targetView) {
+                [viewWelcome, viewCreate, viewJoin, viewVoting].forEach(v => v.classList.add('hidden'));
+                targetView.classList.remove('hidden');
+            }
+
+            // 初期デモ用データ（過去にBさんが1234を作った状態を再現）
+            if (!localStorage.getItem('travel_rooms')) {
+                const mockData = {
+                    "1234": { id: "1234", votes: { "北海道": 3, "京都": 1, "沖縄": 2 } }
+                };
+                localStorage.setItem('travel_rooms', JSON.stringify(mockData));
+            }
+
+            function getRoomsData() { return JSON.parse(localStorage.getItem('travel_rooms')) || {}; }
+            function saveRoomsData(data) { localStorage.setItem('travel_rooms', JSON.stringify(data)); }
+
+            // YES ボタン（入室画面へ）
+            btnHasRoom.addEventListener('click', () => {
+                joinError.textContent = '';
+                inputJoinId.value = '';
+                switchView(viewJoin);
+            });
+
+            // NO ボタン（新規作成画面へ）
+            btnNoRoom.addEventListener('click', () => {
+                createError.textContent = '';
+                createSuccess.classList.add('hidden');
+                inputCreateId.value = '';
+                btnSubmitCreate.classList.remove('hidden');
+                switchView(viewCreate);
+            });
+
+            // 新規作成ボタン
+            btnSubmitCreate.addEventListener('click', () => {
+                const roomId = inputCreateId.value.trim();
+                if (!roomId) {
+                    createError.textContent = 'ルームIDを入力してください。';
+                    return;
+                }
+                const rooms = getRoomsData();
+                if (rooms[roomId]) {
+                    createError.textContent = '既に使われているルームIDです。';
+                    return;
+                }
+                rooms[roomId] = { id: roomId, votes: { "北海道": 0, "京都": 0, "沖縄": 0 } };
+                saveRoomsData(rooms);
+                currentRoomId = roomId;
+                createError.textContent = '';
+                btnSubmitCreate.classList.add('hidden');
+                createSuccess.classList.remove('hidden');
+            });
+
+            // 作成完了から投票へ
+            btnGoVoteFromCreate.addEventListener('click', () => openVotingPage(currentRoomId));
+
+            // 入室するボタン
+            btnSubmitJoin.addEventListener('click', () => {
+                const roomId = inputJoinId.value.trim();
+                if (!roomId) {
+                    joinError.textContent = 'ルームIDを入力してください。';
+                    return;
+                }
+                const rooms = getRoomsData();
+                if (!rooms[roomId]) {
+                    joinError.textContent = '指定されたルームIDは見つかりません。';
+                    return;
+                }
+                currentRoomId = roomId;
+                openVotingPage(currentRoomId);
+            });
+
+            btnBackFromJoin.addEventListener('click', () => switchView(viewWelcome));
+
+            function openVotingPage(roomId) {
+                displayRoomId.textContent = `ID: ${roomId}`;
+                switchView(viewVoting);
+                renderVotingResults();
+            }
+
+            // 投票アクション
+            document.querySelectorAll('.btn-vote').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const option = e.target.getAttribute('data-option');
+                    const rooms = getRoomsData();
+                    if (rooms[currentRoomId]) {
+                        rooms[currentRoomId].votes[option] += 1;
+                        saveRoomsData(rooms);
+                        renderVotingResults();
+                    }
+                });
+            });
+
+            // グラフ描画
+            function renderVotingResults() {
+                if (!currentRoomId) return;
+                const rooms = getRoomsData();
+                const currentRoom = rooms[currentRoomId];
+                if (!currentRoom) return;
+
+                const votes = currentRoom.votes;
+                const totalVotes = Object.values(votes).reduce((sum, val) => sum + val, 0);
+                const mapping = { '北海道': 'hokkaido', '京都': 'kyoto', '沖縄': 'okinawa' };
+                
+                Object.keys(mapping).forEach(key => {
+                    const count = votes[key] || 0;
+                    const percentage = totalVotes > 0 ? (count / totalVotes) * 100 : 0;
+                    const domId = mapping[key];
+                    document.getElementById(`count-${domId}`).textContent = `${count} 票`;
+                    document.getElementById(`bar-${domId}`).style.width = `${percentage}%`;
+                });
+            }
+
+            btnLeave.addEventListener('click', () => {
+                currentRoomId = null;
+                switchView(viewWelcome);
+            });
+
+            // リアルタイム同期用イベント
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'travel_rooms') renderVotingResults();
+            });
+        });
+    </script>
 </body>
 </html>
